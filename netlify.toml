@@ -1,0 +1,29 @@
+# Netlify deployment for the Excalidraw monorepo (static SPA).
+#
+# Git-connected deploy (you complete once in the Netlify UI):
+# 1. Push this repo (or the parent repo with Base directory set to this folder).
+# 2. Netlify → Add new site → Import an existing project → choose Git provider + repo + branch.
+# 3. If the Git repo root is ABOVE this folder, set Site configuration → Build → Base directory
+#    to `excalidraw-fork` (or your path to this monorepo root). Publish dir stays relative to base.
+#
+# Optional — override build-time env in Netlify → Site configuration → Environment variables:
+# Any VITE_* variable Vite reads at build time (see vite-env.d.ts and .env.production).
+# Defaults ship from committed .env.production; set overrides only for intentional forks.
+
+[build]
+  # Netlify runs `yarn` install using repo-root yarn.lock, then this command.
+  command = "yarn build"
+  publish = "excalidraw-app/build"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Align with package.json "packageManager" so CI matches local Yarn classic.
+  YARN_VERSION = "1.22.22"
+  # Passed to Netlify's Yarn install step (no duplicate install in build command).
+  YARN_FLAGS = "--frozen-lockfile"
+
+# Client-side routing: serve index.html for all paths so refresh and deep links work.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
